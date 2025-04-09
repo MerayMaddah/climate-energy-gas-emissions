@@ -1,0 +1,65 @@
+---
+title: "Course Assignment D2.1 Modern Tools & Workflows for Data Quality: Energy Use vs. Cumulative Gas Emissions"
+author: "Meray Maddah"
+format: html
+---
+
+## set up
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## the required packages
+
+```{r packages}
+library(tidyverse)
+library(readr)
+```
+
+## data directory
+
+```{r download_data}
+dir.create("data", showWarnings = FALSE)
+url <- "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv"
+data_path <- "data/owid-co2-data.csv"
+if (!file.exists(data_path)) {
+  download.file(url, data_path)
+}
+```
+
+## check out the data first:
+
+```{r read_data}
+co2 <- read_csv(data_path)
+```
+
+## we only need the latest time periods for this one:
+
+```{r filter_data}
+climate_data <- co2 %>%
+  select(country, year, cumulative_gas_co2, energy_per_capita) %>%
+  filter(!is.na(cumulative_gas_co2), !is.na(energy_per_capita)) %>%
+  filter(year == max(year))
+```
+
+## plotting the energy/capita vs cumulative CO2 from gas:
+
+```{r plot}
+ggplot(climate_data, aes(x = energy_per_capita, y = cumulative_gas_co2)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", color = "maroon") +
+  labs(
+    title = "Energy Use per Capita vs. Cumulative CO2 from Gas",
+    x = "Energy Consumption per Capita (kWh)",
+    y = "Cumulative CO2 Emissions from Gas (Million Tonnes)"
+  ) +
+  theme_minimal()
+```
+
+## fir a linear regression model
+
+```{r regression}
+model <- lm(cumulative_gas_co2 ~ energy_per_capita, data = climate_data)
+summary(model)
+```
