@@ -57,7 +57,7 @@ ggplot(climate_data, aes(x = energy_per_capita, y = cumulative_gas_co2)) +
   theme_minimal()
 ```
 
-## fir a linear regression model
+## fit a linear regression model
 
 ```{r regression}
 model <- lm(cumulative_gas_co2 ~ energy_per_capita, data = climate_data)
